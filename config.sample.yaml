@@ -1,0 +1,23 @@
+update_interval_seconds: 120
+dry_run: true
+notification_template: |
+  Der Stream ist online:
+  {title}
+  
+  Aktuelles Spiel: {game}
+  #twitch #mrpbot #noxp
+twitch:
+  app_id:
+  app_secret:
+  watched_channel:
+mastodon:
+  instance: https://mastodon.social
+  client_token:
+  client_secret:
+  access_token:
+twitter:
+  api_key:
+  api_secret:
+  access_token:
+  access_token_secret:
+
