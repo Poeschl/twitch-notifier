@@ -36,4 +36,12 @@ python3 twitch-notifier/__init__.py
 
 ### Via Docker
 
-//TBD
+The application can also be retrieved via the `ghcr.io/poeschl/twitch-notifier` docker image.
+For configuration of the docker container the `config.yaml` file is mapped into.
+
+A pre-configured `docker-compose.yaml` can be found as a starting point.
+It expects the config file besides itself.
+
+There is an image for each version and a `:dev` docker tag available.
+The dev Tag will be always bloody-edge.
+For the latest fixed version use `:latest`.
