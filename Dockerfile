@@ -9,7 +9,7 @@ RUN apk add --no-cache gcc libc-dev &&\
 FROM python:3.11-alpine
 
 WORKDIR /opt/twitch-notifier
-ENTRYPOINT python3 twitch-notifier/__init__.py
+ENTRYPOINT python3 -u twitch-notifier/__init__.py
 
 COPY --from=build /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY twitch-notifier /opt/twitch-notifier/twitch-notifier

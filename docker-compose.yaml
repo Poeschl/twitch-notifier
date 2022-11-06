@@ -4,3 +4,5 @@ services:
     image: ghcr.io/poeschl/twitch-notifier:latest
     volumes:
       - ./config.yaml:/opt/twitch-notifier/config
+    environment:
+      PYTHONUNBUFFERED: 1
