@@ -51,6 +51,10 @@ def login_twitter(config: dict):
 
 
 def send_mastodon_troet(config: dict, stream: dict):
+    if config["mastodon"]["client_token"] is None:
+        print("No mastodon client token given, skipping mastodon posting.")
+        return
+
     try:
         mastodon = login_mastodon(config)
         text = get_notification_text(config, stream)
@@ -66,6 +70,10 @@ def send_mastodon_troet(config: dict, stream: dict):
 
 
 def send_twitter(config: dict, stream: dict):
+    if config["twitter"]["api_key"] is None:
+        print("No twitter api key given, skipping twitter posting.")
+        return
+
     try:
         twitter = login_twitter(config)
         text = get_notification_text(config, stream)
