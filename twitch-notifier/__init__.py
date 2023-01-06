@@ -100,6 +100,14 @@ async def check_loop(config: dict):
         print("Checking user {} to be online".format(user["display_name"]))
         current_streams: list = twitch.get_streams(user_id=user["id"])["data"]
 
+        if getenv("DEBUG"):
+            current_streams.append({'id': '12345', 'user_id': '123414362', 'user_login': 'mr_poeschl', 'user_name': 'Mr_Poeschl',
+                                    'game_id': '45z2546', 'game_name': 'Tinykin', 'type': 'live',
+                                    'title': 'Bleiben wir bei kleinen Wesen und spielen Tinykin!', 'viewer_count': 105,
+                                    'started_at': '2022-1sdf1-06j27:06Z', 'language': 'de',
+                                    'thumbnail_url': 'https://static-cdn.jtvnw.net/previews-ttv/live_user_mr_poeschl-{width}x{height}.jpg',
+                                    'tag_ids': ['9166ad14-41f1-4b04-a3b8-c8eb838c6be6'], 'is_mature': True})
+
         if len(current_streams) > 0:
             stream = current_streams[0]
             if not currently_streaming and stream["type"] == "live":
