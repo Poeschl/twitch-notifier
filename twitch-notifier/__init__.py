@@ -50,37 +50,34 @@ def login_twitter(config: dict):
                access_token_secret=config["twitter"]["access_token_secret"])
 
 
-def send_mastodon_troet(config: dict, stream: dict):
+def send_mastodon_troet(config: dict, content: str):
     if config["mastodon"]["client_token"] is None:
         print("No mastodon client token given, skipping mastodon posting.")
         return
 
     try:
         mastodon = login_mastodon(config)
-        text = get_notification_text(config, stream)
         if not config["dry_run"]:
-            mastodon.status_post(text,
-                                 idempotency_key=stream["started_at"],
+            mastodon.status_post(content,
                                  visibility="unlisted")
         else:
-            print("Would have posted on Mastodon:\n" + text)
+            print("Would have posted on Mastodon:\n" + content)
     except MastodonError as ex:
         print("Could not send mastodon notification")
         print(ex)
 
 
-def send_twitter(config: dict, stream: dict):
+def send_twitter(config: dict, content: str):
     if config["twitter"]["api_key"] is None:
         print("No twitter api key given, skipping twitter posting.")
         return
 
     try:
         twitter = login_twitter(config)
-        text = get_notification_text(config, stream)
         if not config["dry_run"]:
-            twitter.PostUpdate(text)
+            twitter.PostUpdate(content)
         else:
-            print("Would have posted on Twitter:\n" + text)
+            print("Would have posted on Twitter:\n" + content)
     except TwitterError as ex:
         print("Could not send twitter notification")
         print(ex)
@@ -90,8 +87,13 @@ def get_notification_text(config: dict, stream: dict):
     return config["notification_template"].format(title=stream["title"], game=stream["game_name"])
 
 
+def get_game_switching_text(config: dict, stream: dict):
+    return config["game_switch_template"].format(title=stream["title"], game=stream["game_name"])
+
+
 async def check_loop(config: dict):
     currently_streaming = False
+    current_game = ""
     while True:
         twitch = login_twitch(config)
         user = twitch.get_users(logins=config["twitch"]["watched_channel"])["data"][0]
@@ -102,9 +104,17 @@ async def check_loop(config: dict):
             stream = current_streams[0]
             if not currently_streaming and stream["type"] == "live":
                 currently_streaming = True
+                current_game = stream["game_id"]
                 print("Currently streaming, sending notifications")
-                send_mastodon_troet(config, stream)
-                send_twitter(config, stream)
+                stream_start_text = get_notification_text(config, stream)
+                send_mastodon_troet(config, stream_start_text)
+                send_twitter(config, stream_start_text)
+            elif currently_streaming and current_game != stream["game_id"]:
+                current_game = stream["game_id"]
+                print("Game changed, sending update posts")
+                stream_start_text = get_game_switching_text(config, stream)
+                send_mastodon_troet(config, stream_start_text)
+                send_twitter(config, stream_start_text)
         else:
             currently_streaming = False
 

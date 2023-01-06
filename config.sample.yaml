@@ -6,6 +6,11 @@ notification_template: |
   
   Aktuelles Spiel: {game}
   #twitch #mrpbot #noxp
+game_switch_template: |
+  Das Spiel wird gewechselt zu:  
+  {game}
+  
+  #twitch #mrpbot #noxp
 twitch:
   app_id:
   app_secret:
