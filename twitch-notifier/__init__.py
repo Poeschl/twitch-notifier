@@ -3,6 +3,7 @@ from base64 import b64decode
 from os import getenv
 from os.path import dirname, realpath
 
+from discord import SyncWebhook
 from mastodon import Mastodon, MastodonError
 from twitchAPI.twitch import Twitch
 from twitter import Api, TwitterError
@@ -83,6 +84,18 @@ def send_twitter(config: dict, content: str):
         print(ex)
 
 
+def send_discord(config: dict, content: str):
+    if config["discord"]["webhook"] is None:
+        print("No Discord webhook url given, skipping Discord posting.")
+        return
+
+    webhook = SyncWebhook.from_url(config["discord"]["webhook"])
+    if not config["dry_run"]:
+        webhook.send(content)
+    else:
+        print("Would have posted on Discord:\n" + content)
+
+
 def get_notification_text(config: dict, stream: dict):
     return config["notification_template"].format(title=stream["title"], game=stream["game_name"])
 
@@ -117,12 +130,14 @@ async def check_loop(config: dict):
                 stream_start_text = get_notification_text(config, stream)
                 send_mastodon_troet(config, stream_start_text)
                 send_twitter(config, stream_start_text)
+                send_discord(config, stream_start_text)
             elif currently_streaming and current_game != stream["game_id"]:
                 current_game = stream["game_id"]
                 print("Game changed, sending update posts")
-                stream_start_text = get_game_switching_text(config, stream)
-                send_mastodon_troet(config, stream_start_text)
-                send_twitter(config, stream_start_text)
+                game_switch_text = get_game_switching_text(config, stream)
+                send_mastodon_troet(config, game_switch_text)
+                send_twitter(config, game_switch_text)
+                send_discord(config, game_switch_text)
         else:
             currently_streaming = False
 
@@ -132,6 +147,7 @@ async def check_loop(config: dict):
 def main():
     print("Starting Notifier")
     stored_config = read_config()
+    stored_config["dry_run"] = getenv("DRY_RUN", False)
     asyncio.run(check_loop(stored_config))
 
 

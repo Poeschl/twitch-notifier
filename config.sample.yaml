@@ -1,5 +1,4 @@
 update_interval_seconds: 120
-dry_run: true
 notification_template: |
   Der Stream ist online:
   {title}
@@ -25,4 +24,6 @@ twitter:
   api_secret:
   access_token:
   access_token_secret:
+discord:
+  webhook:
 
