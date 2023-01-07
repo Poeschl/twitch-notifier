@@ -1,6 +1,12 @@
 # Twitch-Notifier
 
-A python script which posts a notification to my social media accounts on Mastodon and Twitter.
+A python script which posts a notification to my social media accounts.
+
+Supports:
+
+* Mastodon
+* Twitter
+* Discord
 
 ## Config
 
@@ -15,6 +21,9 @@ This is useful for the execution in a docker container.
 ```shell
 export CONFIG="$(base64 config.yaml)"
 ```
+
+Not all posting endpoints needs to be used.
+Just leave the auth settings empty will disable the posting to the specific platform.
 
 ## Run it
 
