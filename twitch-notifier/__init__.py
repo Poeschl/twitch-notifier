@@ -105,7 +105,7 @@ def get_game_switching_text(config: dict, stream: dict):
 
 
 async def check_loop(config: dict):
-    currently_streaming = False
+    currently_streaming = None
     current_game = ""
     while True:
         twitch = login_twitch(config)
@@ -121,25 +121,32 @@ async def check_loop(config: dict):
                                     'thumbnail_url': 'https://static-cdn.jtvnw.net/previews-ttv/live_user_mr_poeschl-{width}x{height}.jpg',
                                     'tag_ids': ['9166ad14-41f1-4b04-a3b8-c8eb838c6be6'], 'is_mature': True})
 
-        if len(current_streams) > 0:
-            stream = current_streams[0]
-            if not currently_streaming and stream["type"] == "live":
-                currently_streaming = True
+        if currently_streaming is None:
+            currently_streaming = len(current_streams) > 0
+            if currently_streaming:
+                stream = current_streams[0]
                 current_game = stream["game_id"]
-                print("Currently streaming, sending notifications")
-                stream_start_text = get_notification_text(config, stream)
-                send_mastodon_troet(config, stream_start_text)
-                send_twitter(config, stream_start_text)
-                send_discord(config, stream_start_text)
-            elif currently_streaming and current_game != stream["game_id"]:
-                current_game = stream["game_id"]
-                print("Game changed, sending update posts")
-                game_switch_text = get_game_switching_text(config, stream)
-                send_mastodon_troet(config, game_switch_text)
-                send_twitter(config, game_switch_text)
-                send_discord(config, game_switch_text)
+
         else:
-            currently_streaming = False
+            if len(current_streams) > 0:
+                stream = current_streams[0]
+                if not currently_streaming and stream["type"] == "live":
+                    currently_streaming = True
+                    current_game = stream["game_id"]
+                    print("Currently streaming, sending notifications")
+                    stream_start_text = get_notification_text(config, stream)
+                    send_mastodon_troet(config, stream_start_text)
+                    send_twitter(config, stream_start_text)
+                    send_discord(config, stream_start_text)
+                elif currently_streaming and current_game != stream["game_id"]:
+                    current_game = stream["game_id"]
+                    print("Game changed, sending update posts")
+                    game_switch_text = get_game_switching_text(config, stream)
+                    send_mastodon_troet(config, game_switch_text)
+                    send_twitter(config, game_switch_text)
+                    send_discord(config, game_switch_text)
+            else:
+                currently_streaming = False
 
         await asyncio.sleep(config["update_interval_seconds"])
 
