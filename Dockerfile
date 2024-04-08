@@ -1,15 +1,22 @@
-FROM python:3.11-alpine as build
+FROM python:3.11-slim-bookworm as build
+
+ENV POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_VIRTUALENVS_CREATE=1
+WORKDIR /opt/twitch-notifier
+
+RUN pip install poetry
+
+COPY pyproject.toml poetry.lock ./
+RUN poetry install --no-root
+
+FROM python:3.11-slim-bookworm
+
+ENV VIRTUAL_ENV=/opt/twitch-notifier/.venv \
+    PATH="/opt/twitch-notifier/.venv/bin:$PATH"
 
 WORKDIR /opt/twitch-notifier
-COPY requirements.txt /opt/twitch-notifier/
+ENTRYPOINT python -u twitch-notifier/__init__.py
 
-RUN apk add --no-cache gcc libc-dev &&\
-    pip install --no-cache-dir --upgrade -r requirements.txt
-
-FROM python:3.11-alpine
-
-WORKDIR /opt/twitch-notifier
-ENTRYPOINT python3 -u twitch-notifier/__init__.py
-
-COPY --from=build /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY twitch-notifier /opt/twitch-notifier/twitch-notifier
+COPY --from=build ${VIRTUAL_ENV} ${VIRTUAL_ENV}
+COPY twitch-notifier ./twitch-notifier

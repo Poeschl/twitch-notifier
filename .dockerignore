@@ -1,3 +1,4 @@
 *
 !twitch-notifier
-!requirements.txt
+!poetry.lock
+!pyproject.toml
