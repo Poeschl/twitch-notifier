@@ -9,10 +9,10 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-mastodon-py = "1.5.1"
-twitchapi = "2.5.7.1"
+mastodon-py = "1.8.1"
+twitchapi = "4.2.1"
 python-twitter = "3.5"
-discord-py = ">=2.1.0,<2.2.0"
+discord-py = ">=2.1.0,<2.5.0"
 pyyaml = "^6.0.1"
 
 
